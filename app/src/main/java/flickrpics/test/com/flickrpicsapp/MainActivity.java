@@ -41,6 +41,7 @@ public class MainActivity extends Activity {
     ArrayList<ImageContainer> mDataList;
     ProgressDialog progress;
     private static int mPage = 1;
+    public static final String TAG = "MainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +57,6 @@ public class MainActivity extends Activity {
 
     public void buttonClicked(View v) {
         String tag = mEditText.getText().toString().trim();
-        Log.d("Amit", "enetered tag " + tag);
         new FlickrPicDownloader().execute(tag);
     }
 
@@ -116,13 +116,11 @@ public class MainActivity extends Activity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            Log.d("Amit", "onPreExecute");
         }
 
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            Log.d("Amit", "onPostExecute " + mDataList.size());
             mAdapter.setData(mDataList);
             mAdapter.notifyDataSetChanged();
         }
@@ -130,21 +128,18 @@ public class MainActivity extends Activity {
         @Override
         protected void onProgressUpdate(Void... values) {
             super.onProgressUpdate(values);
-            Log.d("Amit", "onProgressUpdate " + mDataList.size());
             mAdapter.setData(mDataList);
             mAdapter.notifyDataSetChanged();
         }
 
         @Override
         protected Void doInBackground(String... params) {
-            Log.d("Amit", "doInBackground");
             String tag = params[0];
             String url = createURL(tag, mPage);
             String jsonString = null;
             if (URLConnector.isOnline(MainActivity.this)) {
                 ByteArrayOutputStream baos = URLConnector.readBytes(url);
                 jsonString = baos.toString();
-                //Log.d("Amit", "json response: " + jsonString);
                 try {
                     JSONObject rootObject = new JSONObject(jsonString);
                     JSONObject photos = rootObject.getJSONObject("photos");
@@ -153,7 +148,7 @@ public class MainActivity extends Activity {
                         JSONObject item = imageJSONArray.getJSONObject(i);
                         String thumUrl = createPhotoURL(item.getString("farm"), item.getString("server"),
                                 item.getString("id"), item.getString("secret"));
-                        Log.d("Amit", "thumbnail url " + thumUrl);
+                        Log.d(TAG, "thumbnail url " + thumUrl);
                         ImageContainer temp = new ImageContainer();
                         temp.setThumbnailURL(thumUrl);
                         temp.setThumbnail(getThumbnail(thumUrl));
@@ -171,7 +166,7 @@ public class MainActivity extends Activity {
 
     private static final String FLICKR_BASE_URL = "https://api.flickr.com/services/rest/?method=";
     private static final String FLICKR_PHOTOS_SEARCH_STRING = "flickr.photos.search";
-    private static final String APIKEY_SEARCH_STRING = "&api_key=04913f5bf37d5ada4a68a07ffa9a7066";
+    private static final String APIKEY_SEARCH_STRING = "&api_key=use_your_api_key";
     private static final String TAGS_STRING = "&tags=";
     private static final String FORMAT_STRING = "&format=json&nojsoncallback=";
 
@@ -179,7 +174,7 @@ public class MainActivity extends Activity {
         String url = null;
         url = FLICKR_BASE_URL + FLICKR_PHOTOS_SEARCH_STRING +
                 APIKEY_SEARCH_STRING + TAGS_STRING + tag + FORMAT_STRING + page;
-        Log.d("Amit", "url: " + url);
+        Log.d(TAG, "url: " + url);
         return url;
     }
 
